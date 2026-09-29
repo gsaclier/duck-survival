@@ -15,3 +15,11 @@ export function emptyDetails(){return {version:1,stats:[],items:[]};}
 export function mergeDetails(base,addition){const out=structuredClone(base||emptyDetails());for(const key of ['stats','items'])for(const row of addition[key]||[]){const comparable=x=>JSON.stringify(Object.fromEntries(Object.entries(x).filter(([k])=>k!=='source').sort(([a],[b])=>a.localeCompare(b))));if(!out[key].some(x=>comparable(x)===comparable(row)))out[key].push(structuredClone(row));}return validateDetails(out);}
 
 export function detailsEqual(a,b){const canonical=x=>Array.isArray(x)?x.map(canonical):x&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().map(k=>[k,canonical(x[k])])):x;return JSON.stringify(canonical(a??null))===JSON.stringify(canonical(b??null));}
+
+// Replace an obsolete reading only after its capture has been read successfully.
+// Rows entered without a source, and observations from other captures, survive.
+export function replaceCaptureDetails(base,addition,source){
+ const previous=validateDetails(base||emptyDetails());
+ if(!source)throw new Error('Capture source manquante pour la relecture.');
+ return mergeDetails({...previous,stats:previous.stats.filter(x=>x.source!==source),items:previous.items.filter(x=>x.source!==source)},addition);
+}
