@@ -1,5 +1,5 @@
 // Shared, bounded schema. Values retain the game's units and wording.
-export const MODULES={equipment:'Équipements',weapons:'Armes',heroes:'Héros',gems:'Gemmes',mounts:'Montures',decorations:'Décorations',back:'Accessoires dorsaux',titans:'Titans',collections:'Objets de collection',skills:'Compétences',genetics:'Technologie génétique',engineering:'Ingénierie',infiniteNight:'Ligne de défense infinie · raid',other:'Autres éléments'};
+export const MODULES={equipment:'Équipements',weapons:'Armes',heroes:'Héros',gems:'Gemmes',mounts:'Montures',decorations:'Décorations',back:'Accessoires dorsaux',titans:'Titans',collections:'Objets de collection',skills:'Compétences',genetics:'Technologie génétique',engineering:'Bâtiments · ingénierie',infiniteNight:'Ligne de défense infinie · raid',other:'Autres éléments'};
 export const ITEM_FIELDS={name:'Nom',level:'Niveau',rank:'Rang / amélioration',rarity:'Rareté',stars:'Étoiles (nombre et couleur)',quantity:'Quantité / fragments',slot:'Emplacement',status:'Équipé / possédé / verrouillé',bonuses:'Bonus et effets',notes:'Détails / incertitudes',completedNight:'Nuit atteinte',nextNight:'Prochain défi (nuit)',attempts:'Tentatives restantes',raidAvailable:'Raid disponible',source:'Capture source'};
 const object=x=>x&&typeof x==='object'&&!Array.isArray(x);
 function bounded(v,max){return typeof v==='string'&&v.length<=max;}
