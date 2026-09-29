@@ -1,4 +1,4 @@
-const CACHE='alphabet-shell-v4';
+const CACHE='alphabet-shell-v7';
 const ASSETS=['./','./index.html','./admin.html','./styles.css','./app.js','./domain.js','./roster.js','./store.js','./config.js','./drive.js','./backup.js','./icon.svg','./icon-192.png','./icon-512.png','./manifest.webmanifest'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS))));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('alphabet-shell-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

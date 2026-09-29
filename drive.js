@@ -2,21 +2,21 @@
 const SCOPE='https://www.googleapis.com/auth/drive.file';
 const API='https://www.googleapis.com/drive/v3/files';
 export class DriveBackups {
-  constructor({clientId,snapshot,status=()=>{},request=fetch,remember=()=>{},restoreToken=null}) {
+  constructor({clientId,snapshot,status=()=>{},request=(...args)=>globalThis.fetch(...args),remember=()=>{},restoreToken=null}) {
     this.clientId=clientId;this.snapshot=snapshot;this.status=status;this.request=request;this.remember=remember;
     this.token=restoreToken;this.generation=0;this.saved=-1;this.running=null;this.timer=null;this.last=null;this.enabled=false;
   }
   connected(){return !!this.token&&this.token.expiresAt>Date.now()+30000;}
   async prepare(){
     if(!this.clientId)throw new Error('Connexion Google non configurée.');
-    if(!window.google?.accounts?.oauth2){await new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.async=true;s.onload=ok;s.onerror=()=>no(new Error('Google indisponible. Vérifie ta connexion.'));document.head.append(s);});}
+    if(!window.google?.accounts?.oauth2){await new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.async=true;const timer=setTimeout(()=>{s.remove();no(new Error('Le chargement de Google a expiré. Ouvre le site dans ton navigateur habituel puis réessaie.'));},15000);s.onload=()=>{clearTimeout(timer);ok();};s.onerror=()=>{clearTimeout(timer);no(new Error('Google indisponible. Vérifie ta connexion.'));};document.head.append(s);});}
     this.client=window.google.accounts.oauth2.initTokenClient({client_id:this.clientId,scope:SCOPE,include_granted_scopes:false,callback:r=>{
       if(r.error||!r.access_token||!window.google.accounts.oauth2.hasGrantedAllScopes(r,SCOPE)){this.status('error','Connexion Drive non autorisée.');return;}
       this.token={accessToken:r.access_token,expiresAt:Date.now()+Number(r.expires_in)*1000};this.remember(this.token);this.enabled=true;this.status('ready','Drive connecté · sauvegarde prête');
     },error_callback:()=>this.status('error','Connexion annulée. Les données restent sur cet appareil.')});
     if(this.connected())this.enabled=true;
   }
-  connect(){if(!this.client)throw new Error('Connexion Google en cours de préparation. Réessaie dans un instant.');this.client.requestAccessToken({prompt:'select_account'});}
+  connect(){if(!this.client)throw new Error('Connexion Google en cours de préparation. Réessaie dans un instant.');this.status('connecting','Connexion Google demandée · termine la connexion dans la fenêtre Google.');this.client.requestAccessToken({prompt:'select_account'});}
   disconnect(){clearTimeout(this.timer);this.enabled=false;this.token=null;this.remember(null);this.status('off','Drive déconnecté · données sur cet appareil');}
   changed(){this.generation++;if(!this.enabled)return;this.status('pending','Modifications à sauvegarder sur Drive');clearTimeout(this.timer);this.timer=setTimeout(()=>this.save().catch(()=>{}),2000);}
   async json(url,options={}){
