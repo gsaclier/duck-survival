@@ -85,9 +85,10 @@ async function analyzeCaptures(button){
  if(analysisRunning)return;clearTimeout(saveTimer);await saveDraft();if(!draft.captureIds.length)throw new Error('Ajoute au moins une capture.');
  // Validate before calling a paid service. Incomplete manual rows must be completed or removed.
  validateDetails(draft.details||emptyDetails());
+ if(draft.analysisVersion!==2){draft.analyzed=[];draft.analysisMessages=[];draft.analysisVersion=2;}
  analysisRunning=true;button.disabled=true;const form=$('#record-form'),controls=[...form.querySelectorAll('input,select,textarea,button')],previous=controls.map(c=>c.disabled);controls.forEach(c=>c.disabled=true);
  const draftId=draft.id,playerId=draft.playerId;let done=0;const messages=[...(draft.analysisMessages||[])];
- try{for(const id of draft.captureIds){if(!$('#record-form')||draft?.id!==draftId)throw new Error('Lecture interrompue ; les résultats déjà lus sont conservés.');if((draft.analyzed||[]).includes(id)){done++;continue;}
+ try{for(const id of draft.captureIds){if(!$('#record-form')||draft?.id!==draftId)throw new Error('Lecture interrompue ; les résultats déjà lus sont conservés.');if(draft.analysisVersion===2&&(draft.analyzed||[]).includes(id)){done++;continue;}
  const status=$('#analysis-status');if(status)status.textContent=`Lecture ${done+1}/${draft.captureIds.length}…`;
  const uploaded=await uploadDraftCapture(id),r=await api('/api/recognize',{method:'POST',signal:AbortSignal.timeout(100000),body:JSON.stringify({captureId:uploaded.id})});
  if(draft?.id!==draftId||draft.playerId!==playerId)throw new Error('Le brouillon a changé ; résultat non appliqué.');
